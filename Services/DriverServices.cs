@@ -3,6 +3,8 @@ using MongoDB.Bson.Serialization;
 using Drivers.Api.Models;
 using Drivers.Api.Configurations;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
+using MongoDB.Bson;
 
 namespace Drivers.Api.Services
 {
@@ -20,5 +22,27 @@ namespace Drivers.Api.Services
         }
         public async Task<List<Drivers.Api.Models.Driver>> GetAsync() =>
             await _driverCollection.Find(_ => true).ToListAsync();
+
+        public async Task InsertDriver(Driver driverInsert)
+        {
+            await _driverCollection.InsertOneAsync(driverInsert);
+        }
+
+        public async Task DeleteDriver(string driverId)
+        {
+            var filter = Builders<Driver>.Filter.Eq(s=>s.Id, driverId);
+            await _driverCollection.DeleteOneAsync(filter);
+        }
+
+        public async Task UpdateDriver(Driver dataToUpdate)
+        {
+            var filter = Builders<Driver>.Filter.Eq(s=>s.Id, dataToUpdate.Id);
+            await _driverCollection.ReplaceOneAsync(filter,dataToUpdate);
+        }
+
+        public async Task<Driver> GetDriverById(string idToSearch)
+        {
+            return await _driverCollection.FindAsync(new BsonDocument{{"_id", new ObjectId(idToSearch)}}).Result.FirstAsync();    
+        }
     }
 }
