@@ -1,5 +1,6 @@
 using Drivers.Api.Configurations;
 using Drivers.Api.Services;
+using SharpCompress.Compressors.PPMd;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<DriverServices>();
+//agregar CORS rules
+
+builder.Services.AddCors(options => options.AddPolicy("AngularClient",policy => {
+    policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+}));
+
 
 var app = builder.Build();
 
@@ -27,5 +34,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors("AngularClient");
 
 app.Run();
